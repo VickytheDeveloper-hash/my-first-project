@@ -20,6 +20,7 @@
     <textarea id="blog-content" name="content"></textarea><br>
 
     <button type="submit">Upload Blog</button>
+    <button type="button" id="publish-button">Publish</button>
   </form>
 
   <h2 style="text-align: center;">Here are your Results!</h2>
@@ -28,6 +29,9 @@
     <img id="preview-image" src="" alt="Blog Image" width="300" />
     <div id="preview-content"></div>
   </div>
+
+  <h2>Blog Collection</h2>
+  <div id="blog-collection"></div>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -45,31 +49,18 @@
 
     $('#blog-form').on('submit', function (e) {
       e.preventDefault();
-
-      // Sync TinyMCE content to textarea
       tinymce.triggerSave();
 
       const title = $('#blog-title').val().trim();
       const image = $('#blog-image').val();
-      const content = tinymce.get('blog-content').getContent({ format: 'text' }).trim();
+      const rawContent = tinymce.get('blog-content').getContent().trim();
 
-      // Manual validation
-      if (!image) {
-        alert('Please select an image.');
+      if (!image || !title || !rawContent) {
+        alert('Please fill all required fields.');
         return;
       }
 
-      if (!title) {
-        alert('Please enter a blog title.');
-        return;
-      }
-
-      if (!content) {
-        alert('Please enter blog content.');
-        return;
-      }
-
-      let formData = new FormData(this);
+      const formData = new FormData(this);
 
       $.ajax({
         url: 'http://localhost:3000/upload',
@@ -78,14 +69,40 @@
         contentType: false,
         processData: false,
         success: function (response) {
+          const cleanContent = $('<div>').html(response.content);
+
+          // Remove heading tags and image tags from content
+          cleanContent.find('h1, h2, h3, h4, h5, h6, img').remove();
+
           $('#preview-title').text(response.title);
           $('#preview-image').attr('src', response.imageUrl);
-          $('#preview-content').html(response.content);
+          $('#preview-content').html(cleanContent.html());
         },
         error: function () {
           alert('Error uploading blog. Please try again.');
         }
       });
+    });
+
+    $('#publish-button').on('click', function () {
+      const previewTitle = $('#preview-title').text();
+      const previewImage = $('#preview-image').attr('src');
+      const previewContent = $('#preview-content').html();
+
+      if (!previewTitle || !previewImage || !previewContent) {
+        alert('Please preview your blog before publishing.');
+        return;
+      }
+
+      const newBlogHTML = `
+        <div class="blog-item">
+          <h3>${previewTitle}</h3>
+          <img src="${previewImage}" alt="Blog Image" width="300" />
+          <div>${previewContent}</div>
+        </div>
+      `;
+
+      $('#blog-collection').append(newBlogHTML);
     });
   </script>
 </body>
