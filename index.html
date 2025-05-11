@@ -8,18 +8,19 @@
 </head>
 <body>
     <h1>Upload Your Blog</h1>
-    <form id="blog-form" enctype="multipart/form-data">
-        <label for="blog-image">Blog Image:</label>
-        <input type="file" id="blog-image" name="image" required><br>
+    <form id="blog-form" method="POST" enctype="multipart/form-data">
+    <label for="blog-image">Blog Image:</label>
+    <input type="file" id="blog-image" name="image" required><br>
 
-        <label for="blog-title">Blog Title:</label>
-        <input type="text" id="blog-title" name="title" required><br>
+    <label for="blog-title">Blog Title:</label>
+    <input type="text" id="blog-title" name="title" required><br>
 
-        <label for="blog-content">Blog Content:</label>
-        <textarea id="blog-content" name="content" required></textarea><br>
+    <label for="blog-content">Blog Content:</label>
+    <textarea id="blog-content" name="content" required></textarea><br>
 
-        <button type="submit">Upload Blog</button>
-    </form>
+    <button type="submit">Upload Blog</button>
+</form>
+
 
     <h2>Preview:</h2>
     <div id="blog-preview">
@@ -36,7 +37,7 @@
                 
                 let formData = new FormData(this);
                 $.ajax({
-                    url: '/upload',
+                    url: 'http://localhost:3000/upload',
                     type: 'POST',
                     data: formData,
                     contentType: false,
