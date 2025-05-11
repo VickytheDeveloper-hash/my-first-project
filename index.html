@@ -8,7 +8,7 @@
 </head>
 <body>
     <h1>Upload Your Blog</h1>
-    <form id="blog-form" method="POST" enctype="multipart/form-data">
+   <form id="blog-form" method="POST" enctype="multipart/form-data">
     <label for="blog-image">Blog Image:</label>
     <input type="file" id="blog-image" name="image" required><br>
 
@@ -52,5 +52,23 @@
             });
         });
     </script>
+    <script src="https://cdn.tiny.cloud/1/c7t3mwozwhfbly9p9yxh83i1u5utulro71fwmfpuzgphacha/tinymce/5/tinymce.min.js"></script>
+<script>
+  tinymce.init({
+    selector: '#blog-content',  // Target the blog-content textarea
+    plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+    toolbar: 'undo redo | formatselect | bold italic underline | fontselect fontsizeselect | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | help',
+    menubar: false,
+    // Enable heading dropdown and heading tags
+    setup: function (editor) {
+      editor.ui.registry.addMenuItem('heading', {
+        text: 'Heading',
+        onAction: function () {
+          editor.insertContent('<h2>Your Heading Here</h2>');
+        }
+      });
+    }
+  });
+</script>
 </body>
 </html>
