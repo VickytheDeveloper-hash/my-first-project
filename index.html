@@ -1,74 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Upload Platform</title>
-    <link rel="stylesheet" href="../css/app.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blog Upload Platform</title>
+  <link rel="stylesheet" href="../css/app.css" />
 </head>
 <body>
-    <h1>Upload Your Blog</h1>
-   <form id="blog-form" method="POST" enctype="multipart/form-data">
+  <h1>Upload Your Blog</h1>
+
+  <form id="blog-form" method="POST" enctype="multipart/form-data">
     <label for="blog-image">Blog Image:</label>
-    <input type="file" id="blog-image" name="image" required><br>
+    <input type="file" id="blog-image" name="image" /><br>
 
     <label for="blog-title">Blog Title:</label>
-    <input type="text" id="blog-title" name="title" required><br>
+    <input type="text" id="blog-title" name="title" /><br>
 
     <label for="blog-content">Blog Content:</label>
-    <textarea id="blog-content" name="content" required></textarea><br>
+    <textarea id="blog-content" name="content"></textarea><br>
 
     <button type="submit">Upload Blog</button>
-</form>
+  </form>
 
+  <h2 style="text-align: center;">Here are your Results!</h2>
+  <div id="blog-preview">
+    <h3 id="preview-title"></h3>
+    <img id="preview-image" src="" alt="Blog Image" width="300" />
+    <div id="preview-content"></div>
+  </div>
 
-    <h2>Preview:</h2>
-    <div id="blog-preview">
-        <h3 id="preview-title"></h3>
-        <img id="preview-image" src="" alt="Blog Image" width="300">
-        <div id="preview-content"></div>
-    </div>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#blog-form').on('submit', function (e) {
-                e.preventDefault();
-                
-                let formData = new FormData(this);
-                $.ajax({
-                    url: 'http://localhost:3000/upload',
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        // Display preview after successful upload
-                        $('#preview-title').text(response.title);
-                        $('#preview-image').attr('src', response.imageUrl);
-                        $('#preview-content').html(response.content);
-                    }
-                });
-            });
-        });
-    </script>
-    <script src="https://cdn.tiny.cloud/1/c7t3mwozwhfbly9p9yxh83i1u5utulro71fwmfpuzgphacha/tinymce/5/tinymce.min.js"></script>
-<script>
-  tinymce.init({
-    selector: '#blog-content',  // Target the blog-content textarea
-    plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
-    toolbar: 'undo redo | formatselect | bold italic underline | fontselect fontsizeselect | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | help',
-    menubar: false,
-    // Enable heading dropdown and heading tags
-    setup: function (editor) {
-      editor.ui.registry.addMenuItem('heading', {
-        text: 'Heading',
-        onAction: function () {
-          editor.insertContent('<h2>Your Heading Here</h2>');
+  <!-- TinyMCE -->
+  <script src="https://cdn.tiny.cloud/1/c7t3mwozwhfbly9p9yxh83i1u5utulro71fwmfpuzgphacha/tinymce/5/tinymce.min.js"></script>
+
+  <script>
+    tinymce.init({
+      selector: '#blog-content',
+      plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+      toolbar: 'undo redo | formatselect | bold italic underline | fontselect fontsizeselect | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | help',
+      menubar: false
+    });
+
+    $('#blog-form').on('submit', function (e) {
+      e.preventDefault();
+
+      // Sync TinyMCE content to textarea
+      tinymce.triggerSave();
+
+      const title = $('#blog-title').val().trim();
+      const image = $('#blog-image').val();
+      const content = tinymce.get('blog-content').getContent({ format: 'text' }).trim();
+
+      // Manual validation
+      if (!image) {
+        alert('Please select an image.');
+        return;
+      }
+
+      if (!title) {
+        alert('Please enter a blog title.');
+        return;
+      }
+
+      if (!content) {
+        alert('Please enter blog content.');
+        return;
+      }
+
+      let formData = new FormData(this);
+
+      $.ajax({
+        url: 'http://localhost:3000/upload',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+          $('#preview-title').text(response.title);
+          $('#preview-image').attr('src', response.imageUrl);
+          $('#preview-content').html(response.content);
+        },
+        error: function () {
+          alert('Error uploading blog. Please try again.');
         }
       });
-    }
-  });
-</script>
+    });
+  </script>
 </body>
 </html>
